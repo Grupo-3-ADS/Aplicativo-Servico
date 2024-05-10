@@ -2,12 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
-const String taskTable = "Tarefa";
-const String idColumn = "Id";
-const String nameColumn = "Nome";
-const String dateColumn = "Data";
-const String timeColumn = "Hora";
-
 class DatabaseProvider {
   static final DatabaseProvider _instance = DatabaseProvider.internal();
 
@@ -32,77 +26,83 @@ class DatabaseProvider {
     return await openDatabase(path, version: 1,
         onCreate: (Database db, int newerVersion) async {
       await db.execute(
-          "CREATE TABLE $taskTable($idColumn INTEGER PRIMARY KEY, $nameColumn TEXT, $dateColumn TEXT,"
-          "$timeColumn TEXT)");
+          "CREATE TABLE servico (id INTEGER PRIMARY KEY, nome TEXT, descricao TEXT,"
+          "valor REAL, horario TEXT, categoria TEXT)");
     });
   }
 
-  Future<Task> saveTask(Task task) async {
-    Database? dbTask = await db;
-    task.id = await dbTask.insert(taskTable, task.toMap());
-    return task;
+  Future<Service> saveService(Service service) async {
+    Database? dbService = await db;
+    service.id = await dbService.insert("servico", service.toMap());
+    return service;
   }
 
-  Future<Task?> getTask(int id) async {
-    Database? dbTask = await db;
-    List<Map> maps = await dbTask.query(taskTable,
-        columns: [idColumn, nameColumn, dateColumn, timeColumn],
-        where: "$idColumn = ?",
+  Future<Service?> getService(int id) async {
+    Database? dbService = await db;
+    List<Map> maps = await dbService.query("servico",
+        columns: ["id", "nome", "descricao", "valor", "horario", "categoria"],
+        where: "id = ?",
         whereArgs: [id]);
     if (maps.length > 0) {
-      return Task.fromMap(maps.first);
+      return Service.fromMap(maps.first);
     } else {
       return null;
     }
   }
 
-  Future<int> deleteTask(int id) async {
-    Database? dbTask = await db;
-    return await dbTask
-        .delete(taskTable, where: "$idColumn = ?", whereArgs: [id]);
+  Future<int> deleteService(int id) async {
+    Database? dbService = await db;
+    return await dbService
+        .delete("servico", where: "id = ?", whereArgs: [id]);
   }
 
-  Future<int> updateTask(Task task) async {
-    Database dbTask = await db;
-    return await dbTask.update(taskTable, task.toMap(),
-        where: "$idColumn = ?", whereArgs: [task.id]);
+  Future<int> updateService(Service service) async {
+    Database dbService = await db;
+    return await dbService.update("servico", service.toMap(),
+        where: "id = ?", whereArgs: [service.id]);
   }
 
-  Future<List> getAllTasks() async {
-    Database? dbTask = await db;
-    List listMap = await dbTask.rawQuery("SELECT * FROM $taskTable");
-    List<Task> listTask = [];
+  Future<List> getAllServices() async {
+    Database? dbService = await db;
+    List listMap = await dbService.rawQuery("SELECT * FROM servico");
+    List<Service> listService = [];
     for (Map m in listMap) {
-      listTask.add(Task.fromMap(m));
+      listService.add(Service.fromMap(m));
     }
-    return listTask;
+    return listService;
   }
 }
 
-class Task {
+class Service {
   int? id;
-  String? name;
-  String? date;
-  String? time;
+  String? nome;
+  String? descricao;
+  double? valor;
+  String? horario;
+  String? categoria;
 
-  Task(this.id, this.name, this.date, this.time);
+  Service(this.id, this.nome, this.descricao, this.valor, this.horario, this.categoria);
 
-  Task.fromMap(Map map) {
-    id = map[idColumn];
-    name = map[nameColumn];
-    date = map[dateColumn];
-    time = map[timeColumn];
+  Service.fromMap(Map map) {
+    id = map["id"];
+    nome = map["nome"];
+    descricao = map["descricao"];
+    valor = map["valor"];
+    horario = map["horario"];
+    categoria = map["categoria"];
   }
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {
-      nameColumn: name,
-      dateColumn: date,
-      timeColumn: time,
+      "nome": nome,
+      "descricao": descricao,
+      "valor": valor,
+      "horario": horario,
+      "categoria": categoria
     };
 
     if (id != null) {
-      map[idColumn] = id;
+      map["id"] = id;
     }
 
     return map;

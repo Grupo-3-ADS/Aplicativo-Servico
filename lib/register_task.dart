@@ -3,29 +3,32 @@ import 'package:intl/intl.dart';
 import 'package:lista_tarefas/model.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-List<Task> listTask = [];
+List<Service> listService = [];
 
-class RegisterTask extends StatefulWidget {
-  final Task? task;
+class RegisterService extends StatefulWidget {
+  final Service? service;
   final int? editIndex;
 
-  const RegisterTask({Key? key, this.task, this.editIndex}) : super(key: key);
+  const RegisterService({Key? key, this.service, this.editIndex}) : super(key: key);
 
   @override
-  _RegisterTaskState createState() => _RegisterTaskState();
+  _RegisterServiceState createState() => _RegisterServiceState();
 }
 
-class _RegisterTaskState extends State<RegisterTask> {
-  TextEditingController _nameController = TextEditingController();
-  TextEditingController _dateController = TextEditingController();
-  TextEditingController _timeController = TextEditingController();
+class _RegisterServiceState extends State<RegisterService> {
+  TextEditingController _nomeController = TextEditingController();
+  TextEditingController _descricaoController = TextEditingController();
+  TextEditingController _valorController = TextEditingController();
+  TextEditingController _horarioController = TextEditingController();
+  TextEditingController _categoriaController = TextEditingController();
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-            widget.editIndex != null ? 'Editar Tarefa' : 'Adicionar Tarefa'),
+            widget.editIndex != null ? 'Editar Serviço' : 'Adicionar Serviço'),
       ),
       body: SingleChildScrollView(
         // Adiciona um SingleChildScrollView
@@ -35,11 +38,11 @@ class _RegisterTaskState extends State<RegisterTask> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               sizeBox(),
-              taskName(),
+              serviceNome(),
               sizeBox(),
-              taskDate(),
+              serviceDescricao(),
               sizeBox(),
-              taskTime(),
+              serviceValor(),
               sizeBox(),
             ],
           ),
@@ -55,24 +58,27 @@ class _RegisterTaskState extends State<RegisterTask> {
               final dbProvider = DatabaseProvider();
               if (widget.editIndex != null) {
                 // Atualiza contato existente
-                Task newTask = Task(
-                  widget.task!.id,
-                  _nameController.text,
-                  _dateController.text,
-                  _timeController.text,
+                Service newService = Service(
+                  widget.service!.id,
+                  _nomeController.text,
+                  _descricaoController.text,
+                  double.tryParse(_valorController.text) ?? 0.0,
+                  _horarioController.text,
+                  _categoriaController.text
                 );
-                await dbProvider.updateTask(newTask);
-                listTask[widget.editIndex!] = newTask;
+                await dbProvider.updateService(newService);
+                listService[widget.editIndex!] = newService;
               } else {
-                // Adiciona novo contato
-                Task newTask = Task(
+                Service newService = Service(
                   null,
-                  _nameController.text,
-                  _dateController.text,
-                  _timeController.text,
+                  _nomeController.text,
+                  _descricaoController.text,
+                  double.tryParse(_valorController.text) ?? 0.0,
+                  _horarioController.text,
+                  _categoriaController.text
                 );
-                await dbProvider.saveTask(newTask);
-                listTask.add(newTask);
+                await dbProvider.saveService(newService);
+                listService.add(newService);
               }
               Navigator.pop(context); // Retorna para a tela anterior
             },
@@ -92,67 +98,46 @@ class _RegisterTaskState extends State<RegisterTask> {
     );
   }
 
-  Widget taskName() {
+  Widget serviceNome() {
     return Container(
       padding: const EdgeInsets.all(15),
       child: TextField(
-        controller: _nameController,
+        controller: _nomeController,
         keyboardType: TextInputType.text,
         decoration: InputDecoration(
             border: OutlineInputBorder(),
-            labelText: 'Tarefa',
+            labelText: 'Serviço',
             icon: Icon(Icons.add)),
       ),
     );
   }
 
-  Widget taskDate() {
+  Widget serviceDescricao() {
     return Container(
       padding: const EdgeInsets.all(15),
       child: TextField(
-        controller: _dateController,
+        controller: _descricaoController,
         keyboardType: TextInputType.text,
         decoration: InputDecoration(
             border: OutlineInputBorder(),
-            labelText: 'Data',
+            labelText: 'Descrição',
             icon: Icon(Icons.calendar_today)),
-        onTap: () async {
-          DateTime? pickDate = await showDatePicker(
-              context: context,
-              initialDate: DateTime.now(),
-              firstDate: DateTime(1950),
-              lastDate: DateTime(2100));
-          if (pickDate != null) {
-            String dataFormatada = DateFormat('dd/MM/yyyy').format(pickDate);
-            setState(() {
-              _dateController.text = dataFormatada;
-            });
-          }
-        },
       ),
     );
   }
 
-  Widget taskTime() {
+  Widget serviceValor() {
     return Container(
       padding: const EdgeInsets.all(15),
       child: TextField(
-        controller: _timeController,
-        keyboardType: TextInputType.text,
+        controller: _valorController,
+        keyboardType: TextInputType.numberWithOptions(decimal: true),
         decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            labelText: 'Hora',
-            icon: Icon(Icons.timer)),
-        onTap: () async {
-          TimeOfDay? pickTime = await showTimePicker(
-              context: context, initialTime: TimeOfDay.now());
-          if (pickTime != null) {
-            setState(() {
-              _timeController.text = pickTime.format(context);
-            });
-          }
-        },
-      ),
+          border: OutlineInputBorder(),
+          labelText: 'Valor',
+          icon: Icon(Icons.money)
+        ),
+      )
     );
   }
 }

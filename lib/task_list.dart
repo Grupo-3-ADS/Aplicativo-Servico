@@ -2,30 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:lista_tarefas/model.dart';
 import 'package:lista_tarefas/register_task.dart';
 
-List<Task> listTask = [];
-
-class TaskList extends StatefulWidget {
-  const TaskList({Key? key}) : super(key: key);
+class ServiceList extends StatefulWidget {
+  const ServiceList({Key? key}) : super(key: key);
 
   @override
-  _TaskListState createState() => _TaskListState();
+  _ServiceListState createState() => _ServiceListState();
 }
 
-class _TaskListState extends State<TaskList> {
+class _ServiceListState extends State<ServiceList> {
   late DatabaseProvider database;
-  List<dynamic> tasks = [];
+  List<dynamic> services = [];
 
   @override
   void initState() {
     super.initState();
     database = DatabaseProvider();
-    _getAllTasks();
+    _getAllServices();
   }
 
-  void _getAllTasks() {
-    database.getAllTasks().then((list) {
+  void _getAllServices() {
+    database.getAllServices().then((list) {
       setState(() {
-        tasks = list;
+        services = list;
       });
     });
   }
@@ -33,20 +31,20 @@ class _TaskListState extends State<TaskList> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _getAllTasks();
+    _getAllServices();
   }
 
-  void editTask(int index) async {
-    Task task = tasks[index];
-    Task? newTask = await Navigator.push(
+  void editService(int index) async {
+    Service service = services[index];
+    Service? newService = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => RegisterTask(task: task, editIndex: index),
+        builder: (context) => RegisterService(service: service, editIndex: index),
       ),
     );
-    if (newTask != null) {
+    if (newService != null) {
       setState(() {
-        tasks[index] = newTask;
+        services[index] = newService;
       });
     }
   }
@@ -55,28 +53,30 @@ class _TaskListState extends State<TaskList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Minhas tarefas'),
+        title: Text('SERVIÇOS'),
       ),
       body: ListView.builder(
-          itemCount: tasks.length,
+          itemCount: services.length,
           itemBuilder: (BuildContext context, int index) {
-            String name = tasks[index].name;
-            String data = tasks[index].date;
-            String hora = tasks[index].time;
+            String nome = services[index].nome;
+            String descricao = services[index].descricao;
+            double valor = services[index].valor;
+            String horario = services[index].horario;
+            String categoria = services[index].categoria;
             return Dismissible(
                 key: UniqueKey(),
                 background: Container(color: Colors.purple),
                 onDismissed: (direction) {
-                  Task task = tasks[index];
-                  database.deleteTask(task.id!);
+                  Service service = services[index];
+                  database.deleteService(service.id!);
                   setState(() {
-                    tasks.removeAt(index);
+                    services.removeAt(index);
                   });
                 },
                 child: ListTile(
                   leading: CircleAvatar(child: Text(index.toString())),
-                  title: (Text('Tarefa: $name')),
-                  subtitle: Text('Data: $data' + ' - ' + ' Hora: $hora'),
+                  title: (Text('Serviço: $nome')),
+                  subtitle: Text('Descrição: $descricao' + ' - ' + ' Valor: $valor'),
                 ));
           }),
       floatingActionButton: FloatingActionButton(
