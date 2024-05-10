@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Lista de Tarefas',
+      title: 'Serviços',
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
         colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.deepPurple),
@@ -20,8 +20,8 @@ class MyApp extends StatelessWidget {
       ),
       home: const MyHomePage(title: 'Lista de Tarefas'),
       routes: {
-        '/register': (context) => const RegisterTask(),
-        '/list': (context) => const TaskList(),
+        '/register': (context) => const RegisterService(),
+        '/list': (context) => const ServiceList(),
       },
     );
   }
