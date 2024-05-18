@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.deepPurple),
         appBarTheme: const AppBarTheme(backgroundColor: Colors.deepPurple),
       ),
-      home: const MyHomePage(title: 'Lista de Tarefas'),
+      home: const MyHomePage(title: 'Lista de Serviços'),
       routes: {
         '/register': (context) => const RegisterService(),
         '/list': (context) => const ServiceList(),
@@ -56,14 +56,14 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             ListTile(
               leading: const Icon(Icons.add),
-              title: const Text('Adicionar Tarefa'),
+              title: const Text('Adicionar Serviço'),
               onTap: () {
                 Navigator.pushNamed(context, '/register');
               },
             ),
             ListTile(
               leading: const Icon(Icons.list),
-              title: const Text('Listar Tarefas'),
+              title: const Text('Listar Serviços'),
               onTap: () {
                 Navigator.pushNamed(context, '/list');
               },
@@ -76,7 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text(
-              'Bem-vindo à sua lista de tarefas!',
+              'Bem-vindo à sua lista de serviços!',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 20),
             ),
@@ -85,14 +85,14 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 Navigator.pushNamed(context, '/register');
               },
-              child: const Text('Adicionar Tarefa'),
+              child: const Text('Adicionar Serviço'),
             ),
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/list');
               },
-              child: const Text('Listar Tarefas'),
+              child: const Text('Listar Serviços'),
             ),
           ],
         ),
