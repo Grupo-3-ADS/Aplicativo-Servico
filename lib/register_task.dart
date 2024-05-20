@@ -20,6 +20,7 @@ class _RegisterServiceState extends State<RegisterService> {
   TextEditingController _descricaoController = TextEditingController();
   TextEditingController _valorController = TextEditingController();
   TextEditingController _horarioController = TextEditingController();
+  TextEditingController _contatoController = TextEditingController();
   final List<String> _categorias = ['Manutenção de Hardware', 'Instalação de Softwares', 'Formatação'];
   String? _categoriaSelecionada;
 
@@ -45,6 +46,10 @@ class _RegisterServiceState extends State<RegisterService> {
               serviceValor(),
               sizeBox(),
               serviceHorario(),
+              sizeBox(),
+              serviceCategoria(),
+              sizeBox(),
+              serviceContato(),
               sizeBox()
             ],
           ),
@@ -59,14 +64,14 @@ class _RegisterServiceState extends State<RegisterService> {
             onPressed: () async {
               final dbProvider = DatabaseProvider();
               if (widget.editIndex != null) {
-                // Atualiza contato existente
                 Service newService = Service(
                   widget.service!.id,
                   _nomeController.text,
                   _descricaoController.text,
                   double.tryParse(_valorController.text) ?? 0.0,
                   _horarioController.text,
-                  _categoriaSelecionada
+                  _categoriaSelecionada,
+                  _contatoController.text
                 );
                 await dbProvider.updateService(newService);
                 listService[widget.editIndex!] = newService;
@@ -77,7 +82,8 @@ class _RegisterServiceState extends State<RegisterService> {
                   _descricaoController.text,
                   double.tryParse(_valorController.text) ?? 0.0,
                   _horarioController.text,
-                  _categoriaSelecionada
+                  _categoriaSelecionada,
+                  _contatoController.text
                 );
                 await dbProvider.saveService(newService);
                 listService.add(newService);
@@ -128,6 +134,34 @@ class _RegisterServiceState extends State<RegisterService> {
     );
   }
 
+  Widget serviceContato() {
+    return Container(
+      padding: const EdgeInsets.all(15),
+      child: TextField(
+        controller: _contatoController,
+        keyboardType: TextInputType.text,
+        decoration: InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Contato',
+            icon: Icon(Icons.phone)),
+      ),
+    );
+  }
+
+  Widget serviceHorario() {
+    return Container(
+      padding: const EdgeInsets.all(15),
+      child: TextField(
+        controller: _horarioController,
+        keyboardType: TextInputType.text,
+        decoration: InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Horário',
+            icon: Icon(Icons.timelapse)),
+      ),
+    );
+  }
+
   Widget serviceValor() {
     return Container(
       padding: const EdgeInsets.all(15),
@@ -143,7 +177,7 @@ class _RegisterServiceState extends State<RegisterService> {
     );
   }
 
-  Widget serviceHorario() {
+  Widget serviceCategoria() {
     return Container(
       padding: const EdgeInsets.all(15),
       child: DropdownButtonFormField<String>(
