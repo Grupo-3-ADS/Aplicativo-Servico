@@ -21,13 +21,13 @@ class DatabaseProvider {
 
   Future<Database> initDb() async {
     final databasesPath = await getDatabasesPath();
-    final path = join(databasesPath, "Tarefa.db");
+    final path = join(databasesPath, "servico.db");
 
     return await openDatabase(path, version: 1,
         onCreate: (Database db, int newerVersion) async {
       await db.execute(
           "CREATE TABLE servico (id INTEGER PRIMARY KEY, nome TEXT, descricao TEXT,"
-          "valor REAL, horario TEXT, categoria TEXT)");
+          "valor REAL, horario TEXT, categoria TEXT, contato TEXT)");
     });
   }
 
@@ -40,7 +40,7 @@ class DatabaseProvider {
   Future<Service?> getService(int id) async {
     Database? dbService = await db;
     List<Map> maps = await dbService.query("servico",
-        columns: ["id", "nome", "descricao", "valor", "horario", "categoria"],
+        columns: ["id", "nome", "descricao", "valor", "horario", "categoria", "contato"],
         where: "id = ?",
         whereArgs: [id]);
     if (maps.length > 0) {
@@ -79,9 +79,9 @@ class Service {
   double? valor;
   String? horario;
   String? categoria;
+  String? contato;
 
-  Service(this.id, this.nome, this.descricao, this.valor, this.horario,
-      this.categoria);
+  Service(this.id, this.nome, this.descricao, this.valor, this.horario, this.categoria, this.contato);
 
   Service.fromMap(Map map) {
     id = map["id"];
@@ -90,6 +90,7 @@ class Service {
     valor = map["valor"];
     horario = map["horario"];
     categoria = map["categoria"];
+    contato = map["contato"];
   }
 
   Map<String, dynamic> toMap() {
@@ -98,7 +99,8 @@ class Service {
       "descricao": descricao,
       "valor": valor,
       "horario": horario,
-      "categoria": categoria
+      "categoria": categoria,
+      "contato": contato
     };
 
     if (id != null) {

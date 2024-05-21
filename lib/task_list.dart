@@ -65,6 +65,7 @@ class _ServiceListState extends State<ServiceList> {
             double valor = services[index].valor;
             String horario = services[index].horario;
             String categoria = services[index].categoria;
+            String contato = services[index].contato;
             return Dismissible(
                 key: UniqueKey(),
                 background: Container(color: Colors.purple),
@@ -78,8 +79,7 @@ class _ServiceListState extends State<ServiceList> {
                 child: ListTile(
                   leading: CircleAvatar(child: Text(index.toString())),
                   title: (Text('Serviço: $nome')),
-                  subtitle:
-                      Text('Descrição: $descricao' + ' - ' + ' Valor: $valor'),
+                  subtitle: Text('Descrição: $descricao' + ' - ' + '. Valor: $valor' + '. Horário: $horario' + '. Categoria: $categoria' + '. Contato: $contato'),
                 ));
           }),
       floatingActionButton: FloatingActionButton(

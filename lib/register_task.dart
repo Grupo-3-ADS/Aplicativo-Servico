@@ -22,7 +22,9 @@ class _RegisterServiceState extends State<RegisterService> {
   TextEditingController _descricaoController = TextEditingController();
   TextEditingController _valorController = TextEditingController();
   TextEditingController _horarioController = TextEditingController();
-  TextEditingController _categoriaController = TextEditingController();
+  TextEditingController _contatoController = TextEditingController();
+  final List<String> _categorias = ['Manutenção de Hardware', 'Instalação de Softwares', 'Formatação'];
+  String? _categoriaSelecionada;
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +47,12 @@ class _RegisterServiceState extends State<RegisterService> {
               sizeBox(),
               serviceValor(),
               sizeBox(),
+              serviceHorario(),
+              sizeBox(),
+              serviceCategoria(),
+              sizeBox(),
+              serviceContato(),
+              sizeBox()
             ],
           ),
         ),
@@ -58,24 +66,27 @@ class _RegisterServiceState extends State<RegisterService> {
             onPressed: () async {
               final dbProvider = DatabaseProvider();
               if (widget.editIndex != null) {
-                // Atualiza contato existente
                 Service newService = Service(
-                    widget.service!.id,
-                    _nomeController.text,
-                    _descricaoController.text,
-                    double.tryParse(_valorController.text) ?? 0.0,
-                    _horarioController.text,
-                    _categoriaController.text);
+                  widget.service!.id,
+                  _nomeController.text,
+                  _descricaoController.text,
+                  double.tryParse(_valorController.text) ?? 0.0,
+                  _horarioController.text,
+                  _categoriaSelecionada,
+                  _contatoController.text
+                );
                 await dbProvider.updateService(newService);
                 listService[widget.editIndex!] = newService;
               } else {
                 Service newService = Service(
-                    null,
-                    _nomeController.text,
-                    _descricaoController.text,
-                    double.tryParse(_valorController.text) ?? 0.0,
-                    _horarioController.text,
-                    _categoriaController.text);
+                  null,
+                  _nomeController.text,
+                  _descricaoController.text,
+                  double.tryParse(_valorController.text) ?? 0.0,
+                  _horarioController.text,
+                  _categoriaSelecionada,
+                  _contatoController.text
+                );
                 await dbProvider.saveService(newService);
                 listService.add(newService);
               }
@@ -105,7 +116,7 @@ class _RegisterServiceState extends State<RegisterService> {
         keyboardType: TextInputType.text,
         decoration: InputDecoration(
             border: OutlineInputBorder(),
-            labelText: 'Serviço',
+            labelText: 'Nome',
             icon: Icon(Icons.add)),
       ),
     );
@@ -120,7 +131,35 @@ class _RegisterServiceState extends State<RegisterService> {
         decoration: InputDecoration(
             border: OutlineInputBorder(),
             labelText: 'Descrição',
-            icon: Icon(Icons.calendar_today)),
+            icon: Icon(Icons.description)),
+      ),
+    );
+  }
+
+  Widget serviceContato() {
+    return Container(
+      padding: const EdgeInsets.all(15),
+      child: TextField(
+        controller: _contatoController,
+        keyboardType: TextInputType.text,
+        decoration: InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Contato',
+            icon: Icon(Icons.phone)),
+      ),
+    );
+  }
+
+  Widget serviceHorario() {
+    return Container(
+      padding: const EdgeInsets.all(15),
+      child: TextField(
+        controller: _horarioController,
+        keyboardType: TextInputType.text,
+        decoration: InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Horário',
+            icon: Icon(Icons.timelapse)),
       ),
     );
   }
@@ -136,5 +175,30 @@ class _RegisterServiceState extends State<RegisterService> {
               labelText: 'Valor',
               icon: Icon(Icons.money)),
         ));
+  }
+
+  Widget serviceCategoria() {
+    return Container(
+      padding: const EdgeInsets.all(15),
+      child: DropdownButtonFormField<String>(
+        value: _categoriaSelecionada,
+        onChanged: (String? newValue) {
+          setState(() {
+            _categoriaSelecionada = newValue;
+          });
+        },
+        decoration: InputDecoration(
+          border: OutlineInputBorder(),
+          labelText: 'Categoria',
+          icon: Icon(Icons.category),
+        ),
+        items: _categorias.map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
+      ),
+    );
   }
 }
