@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lista_tarefas/model.dart';
+import 'package:lista_tarefas/models/service.dart';
+import 'package:lista_tarefas/services/database_provider.dart';
 import 'package:lista_tarefas/register_task.dart';
 
 class ServiceList extends StatefulWidget {
@@ -39,7 +40,8 @@ class _ServiceListState extends State<ServiceList> {
     Service? newService = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => RegisterService(service: service, editIndex: index),
+        builder: (context) =>
+            RegisterService(service: service, editIndex: index),
       ),
     );
     if (newService != null) {
@@ -76,7 +78,8 @@ class _ServiceListState extends State<ServiceList> {
                 child: ListTile(
                   leading: CircleAvatar(child: Text(index.toString())),
                   title: (Text('Serviço: $nome')),
-                  subtitle: Text('Descrição: $descricao' + ' - ' + ' Valor: $valor'),
+                  subtitle:
+                      Text('Descrição: $descricao' + ' - ' + ' Valor: $valor'),
                 ));
           }),
       floatingActionButton: FloatingActionButton(

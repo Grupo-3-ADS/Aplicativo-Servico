@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:lista_tarefas/model.dart';
+import 'package:lista_tarefas/models/service.dart';
+import 'package:lista_tarefas/services/database_provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 List<Service> listService = [];
@@ -9,7 +10,8 @@ class RegisterService extends StatefulWidget {
   final Service? service;
   final int? editIndex;
 
-  const RegisterService({Key? key, this.service, this.editIndex}) : super(key: key);
+  const RegisterService({Key? key, this.service, this.editIndex})
+      : super(key: key);
 
   @override
   _RegisterServiceState createState() => _RegisterServiceState();
@@ -21,7 +23,6 @@ class _RegisterServiceState extends State<RegisterService> {
   TextEditingController _valorController = TextEditingController();
   TextEditingController _horarioController = TextEditingController();
   TextEditingController _categoriaController = TextEditingController();
-
 
   @override
   Widget build(BuildContext context) {
@@ -59,24 +60,22 @@ class _RegisterServiceState extends State<RegisterService> {
               if (widget.editIndex != null) {
                 // Atualiza contato existente
                 Service newService = Service(
-                  widget.service!.id,
-                  _nomeController.text,
-                  _descricaoController.text,
-                  double.tryParse(_valorController.text) ?? 0.0,
-                  _horarioController.text,
-                  _categoriaController.text
-                );
+                    widget.service!.id,
+                    _nomeController.text,
+                    _descricaoController.text,
+                    double.tryParse(_valorController.text) ?? 0.0,
+                    _horarioController.text,
+                    _categoriaController.text);
                 await dbProvider.updateService(newService);
                 listService[widget.editIndex!] = newService;
               } else {
                 Service newService = Service(
-                  null,
-                  _nomeController.text,
-                  _descricaoController.text,
-                  double.tryParse(_valorController.text) ?? 0.0,
-                  _horarioController.text,
-                  _categoriaController.text
-                );
+                    null,
+                    _nomeController.text,
+                    _descricaoController.text,
+                    double.tryParse(_valorController.text) ?? 0.0,
+                    _horarioController.text,
+                    _categoriaController.text);
                 await dbProvider.saveService(newService);
                 listService.add(newService);
               }
@@ -128,16 +127,14 @@ class _RegisterServiceState extends State<RegisterService> {
 
   Widget serviceValor() {
     return Container(
-      padding: const EdgeInsets.all(15),
-      child: TextField(
-        controller: _valorController,
-        keyboardType: TextInputType.numberWithOptions(decimal: true),
-        decoration: InputDecoration(
-          border: OutlineInputBorder(),
-          labelText: 'Valor',
-          icon: Icon(Icons.money)
-        ),
-      )
-    );
+        padding: const EdgeInsets.all(15),
+        child: TextField(
+          controller: _valorController,
+          keyboardType: TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Valor',
+              icon: Icon(Icons.money)),
+        ));
   }
 }

@@ -1,25 +1,25 @@
-import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import '../models/service.dart';
 
 class DatabaseProvider {
-  static final DatabaseProvider _instance = DatabaseProvider.internal();
+  static final DatabaseProvider _instance = DatabaseProvider._internal();
 
   factory DatabaseProvider() => _instance;
 
-  DatabaseProvider.internal();
+  DatabaseProvider._internal();
   Database? _db;
 
   Future<Database> get db async {
     if (_db != null) {
       return _db!;
     } else {
-      _db = await initDb();
+      _db = await _initDb();
       return _db!;
     }
   }
 
-  Future<Database> initDb() async {
+  Future<Database> _initDb() async {
     final databasesPath = await getDatabasesPath();
     final path = join(databasesPath, "Tarefa.db");
 
@@ -39,11 +39,11 @@ class DatabaseProvider {
 
   Future<Service?> getService(int id) async {
     Database? dbService = await db;
-    List<Map> maps = await dbService.query("servico",
+    List<Map<String, dynamic>> maps = await dbService.query("servico",
         columns: ["id", "nome", "descricao", "valor", "horario", "categoria"],
         where: "id = ?",
         whereArgs: [id]);
-    if (maps.length > 0) {
+    if (maps.isNotEmpty) {
       return Service.fromMap(maps.first);
     } else {
       return null;
@@ -61,50 +61,14 @@ class DatabaseProvider {
         where: "id = ?", whereArgs: [service.id]);
   }
 
-  Future<List> getAllServices() async {
+  Future<List<Service>> getAllServices() async {
     Database? dbService = await db;
-    List listMap = await dbService.rawQuery("SELECT * FROM servico");
+    List<Map<String, dynamic>> listMap =
+        await dbService.rawQuery("SELECT * FROM servico");
     List<Service> listService = [];
-    for (Map m in listMap) {
+    for (Map<String, dynamic> m in listMap) {
       listService.add(Service.fromMap(m));
     }
     return listService;
-  }
-}
-
-class Service {
-  int? id;
-  String? nome;
-  String? descricao;
-  double? valor;
-  String? horario;
-  String? categoria;
-
-  Service(this.id, this.nome, this.descricao, this.valor, this.horario,
-      this.categoria);
-
-  Service.fromMap(Map map) {
-    id = map["id"];
-    nome = map["nome"];
-    descricao = map["descricao"];
-    valor = map["valor"];
-    horario = map["horario"];
-    categoria = map["categoria"];
-  }
-
-  Map<String, dynamic> toMap() {
-    Map<String, dynamic> map = {
-      "nome": nome,
-      "descricao": descricao,
-      "valor": valor,
-      "horario": horario,
-      "categoria": categoria
-    };
-
-    if (id != null) {
-      map["id"] = id;
-    }
-
-    return map;
   }
 }
