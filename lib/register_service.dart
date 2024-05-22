@@ -61,7 +61,7 @@ class _RegisterServiceState extends State<RegisterService> {
               serviceCategoria(),
               sizeBox(),
               serviceContato(),
-              sizeBox(height: 60),
+              sizeBox(height: 60), // Espaço extra para evitar sobreposição
             ],
           ),
         ),
@@ -98,8 +98,12 @@ class _RegisterServiceState extends State<RegisterService> {
                 );
 
                 if (widget.editIndex != null) {
-                  await dbProvider.updateService(newService);
-                  listService[widget.editIndex!] = newService;
+                  if (widget.editIndex! < listService.length) {
+                    await dbProvider.updateService(newService);
+                    listService[widget.editIndex!] = newService;
+                  } else {
+                    print('Índice de edição inválido: ${widget.editIndex}');
+                  }
                 } else {
                   await dbProvider.saveService(newService);
                   listService.add(newService);
