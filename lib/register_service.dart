@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:lista_tarefas/models/service.dart';
 import 'package:lista_tarefas/services/database_provider.dart';
-import 'package:table_calendar/table_calendar.dart';
 
 List<Service> listService = [];
 
@@ -10,8 +8,7 @@ class RegisterService extends StatefulWidget {
   final Service? service;
   final int? editIndex;
 
-  const RegisterService({Key? key, this.service, this.editIndex})
-      : super(key: key);
+  const RegisterService({Key? key, this.service, this.editIndex}) : super(key: key);
 
   @override
   _RegisterServiceState createState() => _RegisterServiceState();
@@ -27,20 +24,32 @@ class _RegisterServiceState extends State<RegisterService> {
   String? _categoriaSelecionada;
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.service != null) {
+      _nomeController.text = widget.service!.nome ?? '';
+      _descricaoController.text = widget.service!.descricao ?? '';
+      _valorController.text = widget.service!.valor.toString();
+      _horarioController.text = widget.service!.horario ?? '';
+      _contatoController.text = widget.service!.contato ?? '';
+      _categoriaSelecionada = widget.service!.categoria ?? _categorias.first;
+    } else {
+      _categoriaSelecionada = _categorias.first;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-            widget.editIndex != null ? 'Editar Serviço' : 'Adicionar Serviço'),
+        title: Text(widget.editIndex != null ? 'Editar Serviço' : 'Adicionar Serviço'),
       ),
       body: SingleChildScrollView(
-        // Adiciona um SingleChildScrollView
         child: Padding(
-          padding: const EdgeInsets.all(0.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              sizeBox(),
               serviceNome(),
               sizeBox(),
               serviceDescricao(),
@@ -52,7 +61,7 @@ class _RegisterServiceState extends State<RegisterService> {
               serviceCategoria(),
               sizeBox(),
               serviceContato(),
-              sizeBox()
+              sizeBox(height: 60),
             ],
           ),
         ),
@@ -61,36 +70,40 @@ class _RegisterServiceState extends State<RegisterService> {
         alignment: Alignment.bottomCenter,
         child: Container(
           width: double.infinity,
-          padding: EdgeInsets.fromLTRB(33, 0, 0, 10),
+          padding: EdgeInsets.fromLTRB(33, 0, 33, 10),
           child: ElevatedButton(
             onPressed: () async {
               final dbProvider = DatabaseProvider();
-              if (widget.editIndex != null) {
-                Service newService = Service(
-                  widget.service!.id,
-                  _nomeController.text,
-                  _descricaoController.text,
-                  double.tryParse(_valorController.text) ?? 0.0,
-                  _horarioController.text,
-                  _categoriaSelecionada,
-                  _contatoController.text
+              if (_nomeController.text.isEmpty ||
+                  _descricaoController.text.isEmpty ||
+                  _valorController.text.isEmpty ||
+                  _horarioController.text.isEmpty ||
+                  _contatoController.text.isEmpty ||
+                  _categoriaSelecionada == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Por favor, preencha todos os campos')),
                 );
+                return;
+              }
+
+              Service newService = Service(
+                widget.service?.id,
+                _nomeController.text,
+                _descricaoController.text,
+                double.tryParse(_valorController.text) ?? 0.0,
+                _horarioController.text,
+                _categoriaSelecionada!,
+                _contatoController.text,
+              );
+
+              if (widget.editIndex != null) {
                 await dbProvider.updateService(newService);
                 listService[widget.editIndex!] = newService;
               } else {
-                Service newService = Service(
-                  null,
-                  _nomeController.text,
-                  _descricaoController.text,
-                  double.tryParse(_valorController.text) ?? 0.0,
-                  _horarioController.text,
-                  _categoriaSelecionada,
-                  _contatoController.text
-                );
                 await dbProvider.saveService(newService);
                 listService.add(newService);
               }
-              Navigator.pop(context); // Retorna para a tela anterior
+              Navigator.pop(context); 
             },
             style: ElevatedButton.styleFrom(
               padding: EdgeInsets.symmetric(vertical: 20),
@@ -102,9 +115,9 @@ class _RegisterServiceState extends State<RegisterService> {
     );
   }
 
-  Widget sizeBox() {
+  Widget sizeBox({double height = 15}) {
     return SizedBox(
-      height: 15,
+      height: height,
     );
   }
 
@@ -115,9 +128,10 @@ class _RegisterServiceState extends State<RegisterService> {
         controller: _nomeController,
         keyboardType: TextInputType.text,
         decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            labelText: 'Nome',
-            icon: Icon(Icons.add)),
+          border: OutlineInputBorder(),
+          labelText: 'Nome',
+          icon: Icon(Icons.add),
+        ),
       ),
     );
   }
@@ -129,9 +143,10 @@ class _RegisterServiceState extends State<RegisterService> {
         controller: _descricaoController,
         keyboardType: TextInputType.text,
         decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            labelText: 'Descrição',
-            icon: Icon(Icons.description)),
+          border: OutlineInputBorder(),
+          labelText: 'Descrição',
+          icon: Icon(Icons.description),
+        ),
       ),
     );
   }
@@ -143,9 +158,10 @@ class _RegisterServiceState extends State<RegisterService> {
         controller: _contatoController,
         keyboardType: TextInputType.text,
         decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            labelText: 'Contato',
-            icon: Icon(Icons.phone)),
+          border: OutlineInputBorder(),
+          labelText: 'Contato',
+          icon: Icon(Icons.phone),
+        ),
       ),
     );
   }
@@ -157,24 +173,27 @@ class _RegisterServiceState extends State<RegisterService> {
         controller: _horarioController,
         keyboardType: TextInputType.text,
         decoration: InputDecoration(
-            border: OutlineInputBorder(),
-            labelText: 'Horário',
-            icon: Icon(Icons.timelapse)),
+          border: OutlineInputBorder(),
+          labelText: 'Horário',
+          icon: Icon(Icons.timelapse),
+        ),
       ),
     );
   }
 
   Widget serviceValor() {
     return Container(
-        padding: const EdgeInsets.all(15),
-        child: TextField(
-          controller: _valorController,
-          keyboardType: TextInputType.numberWithOptions(decimal: true),
-          decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Valor',
-              icon: Icon(Icons.money)),
-        ));
+      padding: const EdgeInsets.all(15),
+      child: TextField(
+        controller: _valorController,
+        keyboardType: TextInputType.numberWithOptions(decimal: true),
+        decoration: InputDecoration(
+          border: OutlineInputBorder(),
+          labelText: 'Valor',
+          icon: Icon(Icons.money),
+        ),
+      ),
+    );
   }
 
   Widget serviceCategoria() {
