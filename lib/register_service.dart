@@ -73,37 +73,44 @@ class _RegisterServiceState extends State<RegisterService> {
           padding: EdgeInsets.fromLTRB(33, 0, 33, 10),
           child: ElevatedButton(
             onPressed: () async {
-              final dbProvider = DatabaseProvider();
-              if (_nomeController.text.isEmpty ||
-                  _descricaoController.text.isEmpty ||
-                  _valorController.text.isEmpty ||
-                  _horarioController.text.isEmpty ||
-                  _contatoController.text.isEmpty ||
-                  _categoriaSelecionada == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Por favor, preencha todos os campos')),
+              try {
+                final dbProvider = DatabaseProvider();
+                if (_nomeController.text.isEmpty ||
+                    _descricaoController.text.isEmpty ||
+                    _valorController.text.isEmpty ||
+                    _horarioController.text.isEmpty ||
+                    _contatoController.text.isEmpty ||
+                    _categoriaSelecionada == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Por favor, preencha todos os campos')),
+                  );
+                  return;
+                }
+
+                Service newService = Service(
+                  widget.service?.id,
+                  _nomeController.text,
+                  _descricaoController.text,
+                  double.tryParse(_valorController.text) ?? 0.0,
+                  _horarioController.text,
+                  _categoriaSelecionada!,
+                  _contatoController.text,
                 );
-                return;
-              }
 
-              Service newService = Service(
-                widget.service?.id,
-                _nomeController.text,
-                _descricaoController.text,
-                double.tryParse(_valorController.text) ?? 0.0,
-                _horarioController.text,
-                _categoriaSelecionada!,
-                _contatoController.text,
-              );
-
-              if (widget.editIndex != null) {
-                await dbProvider.updateService(newService);
-                listService[widget.editIndex!] = newService;
-              } else {
-                await dbProvider.saveService(newService);
-                listService.add(newService);
+                if (widget.editIndex != null) {
+                  await dbProvider.updateService(newService);
+                  listService[widget.editIndex!] = newService;
+                } else {
+                  await dbProvider.saveService(newService);
+                  listService.add(newService);
+                }
+                Navigator.pop(context);
+              } catch (e) {
+                print('Erro ao salvar serviço: $e');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Erro ao salvar serviço')),
+                );
               }
-              Navigator.pop(context); 
             },
             style: ElevatedButton.styleFrom(
               padding: EdgeInsets.symmetric(vertical: 20),
