@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:lista_tarefas/model.dart';
+import 'package:lista_tarefas/models/service.dart';
+import 'package:lista_tarefas/services/database_provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 List<Service> listService = [];
@@ -9,7 +10,8 @@ class RegisterService extends StatefulWidget {
   final Service? service;
   final int? editIndex;
 
-  const RegisterService({Key? key, this.service, this.editIndex}) : super(key: key);
+  const RegisterService({Key? key, this.service, this.editIndex})
+      : super(key: key);
 
   @override
   _RegisterServiceState createState() => _RegisterServiceState();
@@ -164,17 +166,15 @@ class _RegisterServiceState extends State<RegisterService> {
 
   Widget serviceValor() {
     return Container(
-      padding: const EdgeInsets.all(15),
-      child: TextField(
-        controller: _valorController,
-        keyboardType: TextInputType.numberWithOptions(decimal: true),
-        decoration: InputDecoration(
-          border: OutlineInputBorder(),
-          labelText: 'Valor',
-          icon: Icon(Icons.money)
-        ),
-      )
-    );
+        padding: const EdgeInsets.all(15),
+        child: TextField(
+          controller: _valorController,
+          keyboardType: TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              labelText: 'Valor',
+              icon: Icon(Icons.money)),
+        ));
   }
 
   Widget serviceCategoria() {
