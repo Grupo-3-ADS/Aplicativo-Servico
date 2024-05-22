@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lista_tarefas/register_task.dart';
-import 'package:lista_tarefas/task_list.dart';
+import 'package:lista_tarefas/register_service.dart';
+import 'package:lista_tarefas/service_list.dart';
 
 class Routes {
   static const String login = '/login';
@@ -12,11 +12,11 @@ class Routes {
       case login:
       //return MaterialPageRoute(builder: (_) => LoginScreen());
       case client:
-        return MaterialPageRoute(builder: (_) => ServiceList());
+        return MaterialPageRoute(builder: (_) => RegisterService());
       case provider:
       //return MaterialPageRoute(builder: (_) => ProviderList());
       default:
-        return MaterialPageRoute(builder: (_) => RegisterService());
+        return MaterialPageRoute(builder: (_) => ServiceList());
       //return MaterialPageRoute(builder: (_) => LoginScreen());
     }
   }

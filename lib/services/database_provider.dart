@@ -27,7 +27,7 @@ class DatabaseProvider {
         onCreate: (Database db, int newerVersion) async {
       await db.execute(
           "CREATE TABLE servico (id INTEGER PRIMARY KEY, nome TEXT, descricao TEXT,"
-          "valor REAL, horario TEXT, categoria TEXT)");
+          "valor REAL, horario TEXT, categoria TEXT, contato TEXT)");
     });
   }
 
@@ -40,7 +40,14 @@ class DatabaseProvider {
   Future<Service?> getService(int id) async {
     Database? dbService = await db;
     List<Map<String, dynamic>> maps = await dbService.query("servico",
-        columns: ["id", "nome", "descricao", "valor", "horario", "categoria"],
+        columns: [
+          "id",
+          "nome",
+          "descricao",
+          "valor",
+          "horario",
+          "categoria, contato"
+        ],
         where: "id = ?",
         whereArgs: [id]);
     if (maps.isNotEmpty) {
