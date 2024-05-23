@@ -22,7 +22,6 @@ class Service {
 
   Map<String, dynamic> toMap() {
     final Map<String, dynamic> map = {
-      "id": id,
       "nome": nome,
       "descricao": descricao,
       "valor": valor,
