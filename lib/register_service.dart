@@ -61,7 +61,7 @@ class _RegisterServiceState extends State<RegisterService> {
               serviceCategoria(),
               sizeBox(),
               serviceContato(),
-              sizeBox(height: 60), // Espaço extra para evitar sobreposição
+              sizeBox(height: 60)
             ],
           ),
         ),
