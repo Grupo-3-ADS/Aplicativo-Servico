@@ -46,7 +46,8 @@ class DatabaseProvider {
           "descricao",
           "valor",
           "horario",
-          "categoria, contato"
+          "categoria",
+          "contato"
         ],
         where: "id = ?",
         whereArgs: [id]);

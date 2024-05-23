@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:lista_tarefas/models/service.dart';
 import 'package:lista_tarefas/services/database_provider.dart';
 
-List<Service> listService = [];
-
 class RegisterService extends StatefulWidget {
   final Service? service;
   final int? editIndex;
@@ -22,9 +20,11 @@ class _RegisterServiceState extends State<RegisterService> {
   TextEditingController _contatoController = TextEditingController();
   final List<String> _categorias = ['Manutenção de Hardware', 'Instalação de Softwares', 'Formatação'];
   String? _categoriaSelecionada;
+  final dbProvider = DatabaseProvider();
+  List<Service> listService = [];
 
   @override
-  void initState() {
+  void initState() async {
     super.initState();
     if (widget.service != null) {
       _nomeController.text = widget.service!.nome ?? '';
@@ -36,6 +36,7 @@ class _RegisterServiceState extends State<RegisterService> {
     } else {
       _categoriaSelecionada = _categorias.first;
     }
+    listService = await dbProvider.getAllServices();
   }
 
   @override
