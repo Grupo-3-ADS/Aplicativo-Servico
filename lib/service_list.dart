@@ -32,18 +32,28 @@ class _ServiceListState extends State<ServiceList> {
     });
   }
 
+  @override
+  void didChangeDependencies(){
+    super.didChangeDependencies();
+    _getAllServices();
+  }
+
   void editService(int index) async {
     Service service = services[index];
     Service? newService = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            RegisterService(service: service, editIndex: index),
+        builder: (context) => RegisterService(
+          service: service, 
+          editIndex: index,
+          updateServices: (List<Service> updatedServices){
+            setState(() {
+              services = updatedServices;
+              _getAllServices();
+            });
+          }),
       ),
     );
-    if (newService != null) {
-      await _getAllServices(); // Recarrega a lista de serviços do banco de dados
-    }
   }
 
   @override
@@ -53,44 +63,45 @@ class _ServiceListState extends State<ServiceList> {
         title: Text('SERVIÇOS'),
       ),
       body: ListView.builder(
-        itemCount: services.length,
-        itemBuilder: (BuildContext context, int index) {
-          Service service = services[index];
-          return Dismissible(
-            key: UniqueKey(),
-            background: Container(color: Colors.purple),
-            onDismissed: (direction) {
-              database.deleteService(service.id!);
-              setState(() {
-                services.removeAt(index);
-              });
-            },
-            child: ListTile(
-              leading: CircleAvatar(child: Text(index.toString())),
-              title: Text('Serviço: ${service.nome}'),
-              subtitle: Text(
-                'Descrição: ${service.descricao} - '
-                'Valor: ${service.valor} - '
-                'Horário: ${service.horario} - '
-                'Categoria: ${service.categoria} - '
-                'Contato: ${service.contato}',
-              ),
-              onTap: () => editService(index),
-            ),
-          );
-        },
-      ),
+          itemCount: services.length,
+          itemBuilder: (BuildContext context, int index) {
+            String nome = services[index].nome ?? '';
+            String descricao = services[index].descricao ?? '';
+            double valor = services[index].valor ?? 0.0;
+            String horario = services[index].horario ?? '';
+            String categoria = services[index].categoria ?? '';
+            String contato = services[index].contato ?? '';
+            return Dismissible(
+                key: UniqueKey(),
+                background:
+                    Container(color: Theme.of(context).colorScheme.tertiary),
+                onDismissed: (direction) {
+                  Service service = services[index];
+                  database.deleteService(service.id!);
+                  setState(() {
+                    services.removeAt(index);
+                  });
+                },
+                child: ListTile(
+                  leading: CircleAvatar(
+                    child: Text(index.toString()),
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                  ),
+                  title: (Text('Servico: $nome')),
+                  subtitle: Text('$descricao - Valor: $valor - Horário: $horario - Categoria: $categoria - Contato: $contato'),
+                  onTap: () {
+                    editService(index);
+                  },
+                ));
+          }),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          Service? newService = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => RegisterService()),
-          );
-          if (newService != null) {
-            await _getAllServices(); // Recarrega a lista de serviços do banco de dados
-          }
+        onPressed: () {
+          Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => RegisterService()))
+              .then((value) => _getAllServices());
         },
         tooltip: 'Adicionar novo',
+        backgroundColor: Theme.of(context).colorScheme.secondary,
         child: const Icon(Icons.add),
       ),
     );

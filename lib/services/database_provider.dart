@@ -27,7 +27,7 @@ class DatabaseProvider {
         onCreate: (Database db, int newerVersion) async {
       await db.execute(
           "CREATE TABLE servico (id INTEGER PRIMARY KEY, nome TEXT, descricao TEXT,"
-          "valor REAL, horario TEXT, categoria TEXT, contato TEXT)");
+          "valor REAL, horario TEXT, categoria TEXT, contato TEXT, userId INTEGER)");
     });
   }
 
@@ -47,7 +47,8 @@ class DatabaseProvider {
           "valor",
           "horario",
           "categoria",
-          "contato"
+          "contato",
+          "userId"
         ],
         where: "id = ?",
         whereArgs: [id]);
