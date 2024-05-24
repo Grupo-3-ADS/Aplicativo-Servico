@@ -42,9 +42,7 @@ class _ServiceListState extends State<ServiceList> {
       ),
     );
     if (newService != null) {
-      setState(() {
-        services[index] = newService;
-      });
+      await _getAllServices(); // Recarrega a lista de serviços do banco de dados
     }
   }
 
@@ -89,9 +87,7 @@ class _ServiceListState extends State<ServiceList> {
             MaterialPageRoute(builder: (context) => RegisterService()),
           );
           if (newService != null) {
-            setState(() {
-              services.add(newService);
-            });
+            await _getAllServices(); // Recarrega a lista de serviços do banco de dados
           }
         },
         tooltip: 'Adicionar novo',

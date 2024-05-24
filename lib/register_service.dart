@@ -99,17 +99,11 @@ class _RegisterServiceState extends State<RegisterService> {
                 );
 
                 if (widget.editIndex != null) {
-                  if (widget.editIndex! < listService.length) {
-                    await dbProvider.updateService(newService);
-                    listService[widget.editIndex!] = newService;
-                  } else {
-                    print('Índice de edição inválido: ${widget.editIndex}');
-                  }
+                  await dbProvider.updateService(newService);
                 } else {
                   await dbProvider.saveService(newService);
-                  listService.add(newService);
                 }
-                Navigator.pop(context);
+                Navigator.pop(context, newService); // Retorna o serviço atualizado
               } catch (e) {
                 print('Erro ao salvar serviço: $e');
                 ScaffoldMessenger.of(context).showSnackBar(
