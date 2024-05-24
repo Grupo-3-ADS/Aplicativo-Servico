@@ -27,7 +27,7 @@ class DatabaseProvider {
         onCreate: (Database db, int newerVersion) async {
       await db.execute(
           "CREATE TABLE servico (id INTEGER PRIMARY KEY, nome TEXT, descricao TEXT,"
-          "valor REAL, horario TEXT, categoria TEXT, contato TEXT)");
+          "valor REAL, horario TEXT, categoria TEXT, contato TEXT, userId INTEGER)");
     });
   }
 
@@ -40,7 +40,7 @@ class DatabaseProvider {
   Future<Service?> getService(int id) async {
     Database? dbService = await db;
     List<Map> maps = await dbService.query("servico",
-        columns: ["id", "nome", "descricao", "valor", "horario", "categoria", "contato"],
+        columns: ["id", "nome", "descricao", "valor", "horario", "categoria", "contato", "userId"],
         where: "id = ?",
         whereArgs: [id]);
     if (maps.length > 0) {
@@ -80,8 +80,9 @@ class Service {
   String? horario;
   String? categoria;
   String? contato;
+  int? userId;
 
-  Service(this.id, this.nome, this.descricao, this.valor, this.horario, this.categoria, this.contato);
+  Service(this.id, this.nome, this.descricao, this.valor, this.horario, this.categoria, this.contato, this.userId);
 
   Service.fromMap(Map map) {
     id = map["id"];
@@ -91,6 +92,7 @@ class Service {
     horario = map["horario"];
     categoria = map["categoria"];
     contato = map["contato"];
+    userId = map["userId"];
   }
 
   Map<String, dynamic> toMap() {
@@ -100,7 +102,8 @@ class Service {
       "valor": valor,
       "horario": horario,
       "categoria": categoria,
-      "contato": contato
+      "contato": contato,
+      "userId": userId
     };
 
     if (id != null) {

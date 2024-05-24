@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:lista_tarefas/models/service.dart';
 import 'package:lista_tarefas/services/database_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 List<Service> listService = [];
 
 class RegisterService extends StatefulWidget {
   final Service? service;
   final int? editIndex;
+  final Function(List<Service>)? updateServices;
 
-  const RegisterService({Key? key, this.service, this.editIndex}) : super(key: key);
+  const RegisterService({Key? key, this.service, this.editIndex, this.updateServices}) : super(key: key);
 
   @override
   _RegisterServiceState createState() => _RegisterServiceState();
@@ -24,7 +26,7 @@ class _RegisterServiceState extends State<RegisterService> {
   String? _categoriaSelecionada;
 
   @override
-  void initState() {
+  void initState() async {
     super.initState();
     if (widget.service != null) {
       _nomeController.text = widget.service!.nome ?? '';
@@ -43,7 +45,12 @@ class _RegisterServiceState extends State<RegisterService> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.editIndex != null ? 'Editar Serviço' : 'Adicionar Serviço'),
-      ),
+      leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          )),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -61,7 +68,7 @@ class _RegisterServiceState extends State<RegisterService> {
               serviceCategoria(),
               sizeBox(),
               serviceContato(),
-              sizeBox(height: 60), // Espaço extra para evitar sobreposição
+              sizeBox()
             ],
           ),
         ),
@@ -73,53 +80,32 @@ class _RegisterServiceState extends State<RegisterService> {
           padding: EdgeInsets.fromLTRB(33, 0, 33, 10),
           child: ElevatedButton(
             onPressed: () async {
-              try {
-                final dbProvider = DatabaseProvider();
-                if (_nomeController.text.isEmpty ||
-                    _descricaoController.text.isEmpty ||
-                    _valorController.text.isEmpty ||
-                    _horarioController.text.isEmpty ||
-                    _contatoController.text.isEmpty ||
-                    _categoriaSelecionada == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Por favor, preencha todos os campos')),
-                  );
-                  return;
-                }
-
-                Service newService = Service(
-                  widget.service?.id,
-                  _nomeController.text,
-                  _descricaoController.text,
-                  double.tryParse(_valorController.text) ?? 0.0,
-                  _horarioController.text,
-                  _categoriaSelecionada!,
-                  _contatoController.text,
-                );
-
-                if (widget.editIndex != null) {
-                  if (widget.editIndex! < listService.length) {
-                    await dbProvider.updateService(newService);
-                    listService[widget.editIndex!] = newService;
-                  } else {
-                    print('Índice de edição inválido: ${widget.editIndex}');
-                  }
-                } else {
-                  await dbProvider.saveService(newService);
-                  listService.add(newService);
-                }
-                Navigator.pop(context);
-              } catch (e) {
-                print('Erro ao salvar serviço: $e');
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Erro ao salvar serviço')),
-                );
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              var userId = await prefs.getInt('userId');
+              final dbProvider = DatabaseProvider();
+              if (widget.editIndex != null) {
+                // Atualiza tarefa existente
+                Service newService = Service(widget.service!.id, _nomeController.text,
+                    _descricaoController.text, double.tryParse(_valorController.text) ?? 0.0, _horarioController.text, _categoriaSelecionada, _contatoController.text, userId);
+                await dbProvider.updateService(newService);
+              } else {
+                // Adiciona nova tarefa
+                Service newService = Service(null, _nomeController.text,
+                    _descricaoController.text, double.tryParse(_valorController.text) ?? 0.0, _horarioController.text, _categoriaSelecionada, _contatoController.text, userId);
+                await dbProvider.saveService(newService);
+                listService.add(newService);
               }
+              if (widget.updateServices != null) {
+                widget.updateServices!(listService);
+              }
+              Navigator.pop(context); // Retorna para a tela anterior
             },
             style: ElevatedButton.styleFrom(
               padding: EdgeInsets.symmetric(vertical: 20),
+              backgroundColor: Theme.of(context).colorScheme.secondary,
             ),
-            child: Text(widget.editIndex != null ? 'Salvar' : 'Adicionar'),
+            child: Text(widget.editIndex != null ? 'Salvar' : 'Adicionar',
+                style: TextStyle(color: Colors.black)),
           ),
         ),
       ),

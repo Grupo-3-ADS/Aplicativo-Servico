@@ -6,9 +6,10 @@ class Service {
   String? horario;
   String? categoria;
   String? contato;
+  int? userId;
 
   Service(this.id, this.nome, this.descricao, this.valor, this.horario,
-      this.categoria, this.contato);
+      this.categoria, this.contato, this.userId);
 
   Service.fromMap(Map<String, dynamic> map) {
     id = map["id"];
@@ -18,6 +19,7 @@ class Service {
     horario = map["horario"];
     categoria = map["categoria"];
     contato = map["contato"];
+    userId = map["userId"];
   }
 
   Map<String, dynamic> toMap() {
@@ -27,7 +29,8 @@ class Service {
       "valor": valor,
       "horario": horario,
       "categoria": categoria,
-      "contato": contato
+      "contato": contato,
+      "userId": userId
     };
 
     if (id != null) {
