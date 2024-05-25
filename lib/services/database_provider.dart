@@ -27,7 +27,7 @@ class DatabaseProvider {
         onCreate: (Database db, int newerVersion) async {
       await db.execute(
           "CREATE TABLE servico (id INTEGER PRIMARY KEY, nome TEXT, descricao TEXT,"
-          "valor REAL, horario TEXT, categoria TEXT, contato TEXT)");
+          "valor REAL, horario TEXT, categoria TEXT, contato TEXT, userId INTEGER)");
     });
   }
 
@@ -46,7 +46,9 @@ class DatabaseProvider {
           "descricao",
           "valor",
           "horario",
-          "categoria, contato"
+          "categoria",
+          "contato",
+          "userId"
         ],
         where: "id = ?",
         whereArgs: [id]);
@@ -72,6 +74,17 @@ class DatabaseProvider {
     Database? dbService = await db;
     List<Map<String, dynamic>> listMap =
         await dbService.rawQuery("SELECT * FROM servico");
+    List<Service> listService = [];
+    for (Map<String, dynamic> m in listMap) {
+      listService.add(Service.fromMap(m));
+    }
+    return listService;
+  }
+
+  Future<List<Service>> getServices(int? userId) async {
+    Database? dbService = await db;
+    List<Map<String, dynamic>> listMap = await dbService
+        .rawQuery("SELECT * FROM servico WHERE userId = $userId");
     List<Service> listService = [];
     for (Map<String, dynamic> m in listMap) {
       listService.add(Service.fromMap(m));

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lista_tarefas/models/service.dart';
 import 'package:lista_tarefas/services/database_provider.dart';
 import 'package:lista_tarefas/register_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ServiceList extends StatefulWidget {
   const ServiceList({Key? key}) : super(key: key);
@@ -13,6 +14,7 @@ class ServiceList extends StatefulWidget {
 class _ServiceListState extends State<ServiceList> {
   late DatabaseProvider database;
   List<Service> services = [];
+  String userRole = '';
 
   @override
   void initState() {
@@ -26,25 +28,40 @@ class _ServiceListState extends State<ServiceList> {
   }
 
   Future<void> _getAllServices() async {
-    List<Service> list = await database.getAllServices();
-    setState(() {
-      services = list;
-    });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var userId = await prefs.getInt('userId');
+    userRole = await prefs.getString('userRole') ?? "";
+
+    if (userRole == "Prestador") {
+      database.getServices(userId).then((list) {
+        setState(() {
+          services = list;
+        });
+      });
+    } else {
+      database.getAllServices().then((list) {
+        setState(() {
+          services = list;
+        });
+      });
+    }
   }
 
   void editService(int index) async {
-    Service service = services[index];
-    Service? newService = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            RegisterService(service: service, editIndex: index),
-      ),
-    );
-    if (newService != null) {
-      setState(() {
-        services[index] = newService;
-      });
+    if (userRole == "Prestador") {
+      Service service = services[index];
+      Service? newService = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              RegisterService(service: service, editIndex: index),
+        ),
+      );
+      if (newService != null) {
+        setState(() {
+          services[index] = newService;
+        });
+      }
     }
   }
 
@@ -52,7 +69,8 @@ class _ServiceListState extends State<ServiceList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('SERVIÇOS'),
+        title: Text(
+            userRole == "Prestador" ? 'Meus Serviços' : 'Serviços Disponíveis'),
       ),
       body: ListView.builder(
         itemCount: services.length,
@@ -62,10 +80,12 @@ class _ServiceListState extends State<ServiceList> {
             key: UniqueKey(),
             background: Container(color: Colors.purple),
             onDismissed: (direction) {
-              database.deleteService(service.id!);
-              setState(() {
-                services.removeAt(index);
-              });
+              if (userRole == "Prestador") {
+                database.deleteService(service.id!);
+                setState(() {
+                  services.removeAt(index);
+                });
+              }
             },
             child: ListTile(
               leading: CircleAvatar(child: Text(index.toString())),
@@ -77,26 +97,28 @@ class _ServiceListState extends State<ServiceList> {
                 'Categoria: ${service.categoria} - '
                 'Contato: ${service.contato}',
               ),
-              onTap: () => editService(index),
+              onTap: userRole == "Prestador" ? () => editService(index) : null,
             ),
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          Service? newService = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => RegisterService()),
-          );
-          if (newService != null) {
-            setState(() {
-              services.add(newService);
-            });
-          }
-        },
-        tooltip: 'Adicionar novo',
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: userRole == "Prestador"
+          ? FloatingActionButton(
+              onPressed: () async {
+                Service? newService = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RegisterService()),
+                );
+                if (newService != null) {
+                  setState(() {
+                    services.add(newService);
+                  });
+                }
+              },
+              tooltip: 'Adicionar novo',
+              child: const Icon(Icons.add),
+            )
+          : null,
     );
   }
 }

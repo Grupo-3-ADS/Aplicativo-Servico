@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lista_tarefas/models/service.dart';
 import 'package:lista_tarefas/services/database_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 List<Service> listService = [];
 
@@ -8,7 +9,8 @@ class RegisterService extends StatefulWidget {
   final Service? service;
   final int? editIndex;
 
-  const RegisterService({Key? key, this.service, this.editIndex}) : super(key: key);
+  const RegisterService({Key? key, this.service, this.editIndex})
+      : super(key: key);
 
   @override
   _RegisterServiceState createState() => _RegisterServiceState();
@@ -20,7 +22,11 @@ class _RegisterServiceState extends State<RegisterService> {
   TextEditingController _valorController = TextEditingController();
   TextEditingController _horarioController = TextEditingController();
   TextEditingController _contatoController = TextEditingController();
-  final List<String> _categorias = ['Manutenção de Hardware', 'Instalação de Softwares', 'Formatação'];
+  final List<String> _categorias = [
+    'Manutenção de Hardware',
+    'Instalação de Softwares',
+    'Formatação'
+  ];
   String? _categoriaSelecionada;
 
   @override
@@ -42,7 +48,8 @@ class _RegisterServiceState extends State<RegisterService> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.editIndex != null ? 'Editar Serviço' : 'Adicionar Serviço'),
+        title: Text(
+            widget.editIndex != null ? 'Editar Serviço' : 'Adicionar Serviço'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -82,7 +89,17 @@ class _RegisterServiceState extends State<RegisterService> {
                     _contatoController.text.isEmpty ||
                     _categoriaSelecionada == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Por favor, preencha todos os campos')),
+                    SnackBar(
+                        content: Text('Por favor, preencha todos os campos')),
+                  );
+                  return;
+                }
+
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                var userId = prefs.getInt('userId');
+                if (userId == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Erro ao obter ID do usuário')),
                   );
                   return;
                 }
@@ -95,6 +112,7 @@ class _RegisterServiceState extends State<RegisterService> {
                   _horarioController.text,
                   _categoriaSelecionada!,
                   _contatoController.text,
+                  userId,
                 );
 
                 if (widget.editIndex != null) {
