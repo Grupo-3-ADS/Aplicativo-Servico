@@ -80,4 +80,15 @@ class DatabaseProvider {
     }
     return listService;
   }
+
+  Future<List<Service>> getServices(int? userId) async {
+    Database? dbService = await db;
+    List<Map<String, dynamic>> listMap = await dbService
+        .rawQuery("SELECT * FROM servico WHERE userId = $userId");
+    List<Service> listService = [];
+    for (Map<String, dynamic> m in listMap) {
+      listService.add(Service.fromMap(m));
+    }
+    return listService;
+  }
 }

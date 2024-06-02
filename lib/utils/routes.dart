@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lista_tarefas/register_service.dart';
-import 'package:lista_tarefas/service_list.dart';
+import 'package:services/register_service.dart';
+import 'package:services/service_list.dart';
 
 class Routes {
   static const String login = '/login';

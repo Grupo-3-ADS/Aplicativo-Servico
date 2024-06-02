@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lista_tarefas/models/service.dart';
-import 'package:lista_tarefas/services/database_provider.dart';
+import 'package:services/models/service.dart';
+import 'package:services/services/database_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 List<Service> listService = [];
@@ -10,7 +10,9 @@ class RegisterService extends StatefulWidget {
   final int? editIndex;
   final Function(List<Service>)? updateServices;
 
-  const RegisterService({Key? key, this.service, this.editIndex, this.updateServices}) : super(key: key);
+  const RegisterService(
+      {Key? key, this.service, this.editIndex, this.updateServices})
+      : super(key: key);
 
   @override
   _RegisterServiceState createState() => _RegisterServiceState();
@@ -22,21 +24,33 @@ class _RegisterServiceState extends State<RegisterService> {
   TextEditingController _valorController = TextEditingController();
   TextEditingController _horarioController = TextEditingController();
   TextEditingController _contatoController = TextEditingController();
-  final List<String> _categorias = ['Manutenção de Hardware', 'Instalação de Softwares', 'Formatação'];
+  final List<String> _categorias = [
+    'Manutenção de Hardware',
+    'Instalação de Softwares',
+    'Formatação'
+  ];
   String? _categoriaSelecionada;
 
   @override
-  void initState() async {
+  void initState() {
     super.initState();
+    _initializeServiceData();
+  }
+
+  Future<void> _initializeServiceData() async {
     if (widget.service != null) {
-      _nomeController.text = widget.service!.nome ?? '';
-      _descricaoController.text = widget.service!.descricao ?? '';
-      _valorController.text = widget.service!.valor.toString();
-      _horarioController.text = widget.service!.horario ?? '';
-      _contatoController.text = widget.service!.contato ?? '';
-      _categoriaSelecionada = widget.service!.categoria ?? _categorias.first;
+      setState(() {
+        _nomeController.text = widget.service!.nome ?? '';
+        _descricaoController.text = widget.service!.descricao ?? '';
+        _valorController.text = widget.service!.valor.toString();
+        _horarioController.text = widget.service!.horario ?? '';
+        _contatoController.text = widget.service!.contato ?? '';
+        _categoriaSelecionada = widget.service!.categoria ?? _categorias.first;
+      });
     } else {
-      _categoriaSelecionada = _categorias.first;
+      setState(() {
+        _categoriaSelecionada = _categorias.first;
+      });
     }
   }
 
@@ -44,13 +58,9 @@ class _RegisterServiceState extends State<RegisterService> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.editIndex != null ? 'Editar Serviço' : 'Adicionar Serviço'),
-      leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          )),
+        title: Text(
+            widget.editIndex != null ? 'Editar Serviço' : 'Adicionar Serviço'),
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -68,7 +78,7 @@ class _RegisterServiceState extends State<RegisterService> {
               serviceCategoria(),
               sizeBox(),
               serviceContato(),
-              sizeBox()
+              sizeBox(height: 80), // Adicione um espaço extra aqui
             ],
           ),
         ),
@@ -80,25 +90,63 @@ class _RegisterServiceState extends State<RegisterService> {
           padding: EdgeInsets.fromLTRB(33, 0, 33, 10),
           child: ElevatedButton(
             onPressed: () async {
-              SharedPreferences prefs = await SharedPreferences.getInstance();
-              var userId = await prefs.getInt('userId');
-              final dbProvider = DatabaseProvider();
-              if (widget.editIndex != null) {
-                // Atualiza tarefa existente
-                Service newService = Service(widget.service!.id, _nomeController.text,
-                    _descricaoController.text, double.tryParse(_valorController.text) ?? 0.0, _horarioController.text, _categoriaSelecionada, _contatoController.text, userId);
-                await dbProvider.updateService(newService);
-              } else {
-                // Adiciona nova tarefa
-                Service newService = Service(null, _nomeController.text,
-                    _descricaoController.text, double.tryParse(_valorController.text) ?? 0.0, _horarioController.text, _categoriaSelecionada, _contatoController.text, userId);
-                await dbProvider.saveService(newService);
-                listService.add(newService);
+              try {
+                final dbProvider = DatabaseProvider();
+                if (_nomeController.text.isEmpty ||
+                    _descricaoController.text.isEmpty ||
+                    _valorController.text.isEmpty ||
+                    _horarioController.text.isEmpty ||
+                    _contatoController.text.isEmpty ||
+                    _categoriaSelecionada == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        content: Text('Por favor, preencha todos os campos')),
+                  );
+                  return;
+                }
+
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                var userId = prefs.getInt('userId');
+                if (userId == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Erro ao obter ID do usuário')));
+                  return; // Adicionado para evitar continuação do código
+                }
+
+                if (widget.editIndex != null) {
+                  Service newService = Service(
+                      widget.service?.id,
+                      _nomeController.text,
+                      _descricaoController.text,
+                      double.tryParse(_valorController.text) ?? 0.0,
+                      _horarioController.text,
+                      _categoriaSelecionada!,
+                      _contatoController.text,
+                      userId);
+                  await dbProvider.updateService(newService);
+                } else {
+                  Service newService = Service(
+                      widget.service?.id,
+                      _nomeController.text,
+                      _descricaoController.text,
+                      double.tryParse(_valorController.text) ?? 0.0,
+                      _horarioController.text,
+                      _categoriaSelecionada!,
+                      _contatoController.text,
+                      userId);
+                  await dbProvider.saveService(newService);
+                  listService.add(newService);
+                }
+                if (widget.updateServices != null) {
+                  widget.updateServices!(listService);
+                }
+                Navigator.pop(context);
+              } catch (e) {
+                print('Erro ao salvar serviço: $e');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Erro ao salvar serviço')),
+                );
               }
-              if (widget.updateServices != null) {
-                widget.updateServices!(listService);
-              }
-              Navigator.pop(context); // Retorna para a tela anterior
             },
             style: ElevatedButton.styleFrom(
               padding: EdgeInsets.symmetric(vertical: 20),
