@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:lista_tarefas/login.dart';
-import 'package:lista_tarefas/providers/user_provider.dart';
-import 'package:lista_tarefas/register_service.dart';
-import 'package:lista_tarefas/service_list.dart';
-import 'package:lista_tarefas/utils/routes.dart';
-import 'package:provider/provider.dart';
+import 'package:services/login.dart';
+import 'package:services/register_service.dart';
+import 'package:services/service_list.dart';
 
 void main() {
   runApp(MyApp());

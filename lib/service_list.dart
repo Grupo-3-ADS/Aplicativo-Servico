@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:lista_tarefas/models/service.dart';
-import 'package:lista_tarefas/services/database_provider.dart';
-import 'package:lista_tarefas/register_service.dart';
+import 'package:services/models/service.dart';
+import 'package:services/services/database_provider.dart';
+import 'package:services/register_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ServiceList extends StatefulWidget {
@@ -50,6 +50,9 @@ class _ServiceListState extends State<ServiceList> {
   }
 
   void editService(int index) async {
+    if (userRole != "Prestador") {
+      return;
+    }
     Service service = services[index];
     Service? newService = await Navigator.push(
       context,
@@ -85,32 +88,47 @@ class _ServiceListState extends State<ServiceList> {
         itemCount: services.length,
         itemBuilder: (BuildContext context, int index) {
           Service service = services[index];
-          return Dismissible(
-            key: UniqueKey(),
-            background:
-                Container(color: Theme.of(context).colorScheme.secondary),
-            onDismissed: (direction) {
-              database.deleteService(service.id!);
-              setState(() {
-                services.removeAt(index);
-              });
-            },
-            child: ListTile(
-              leading: CircleAvatar(
-                child: Text(index.toString()),
-                backgroundColor: Theme.of(context).colorScheme.secondary,
-              ),
-              title: Text('Serviço: ${service.nome}'),
-              subtitle: Text(
-                'Descrição: ${service.descricao} - '
-                'Valor: ${service.valor} - '
-                'Horário: ${service.horario} - '
-                'Categoria: ${service.categoria} - '
-                'Contato: ${service.contato}',
-              ),
-              onTap: () => editService(index),
-            ),
-          );
+          return userRole == "Prestador"
+              ? Dismissible(
+                  key: UniqueKey(),
+                  background:
+                      Container(color: Theme.of(context).colorScheme.secondary),
+                  onDismissed: (direction) {
+                    database.deleteService(service.id!);
+                    setState(() {
+                      services.removeAt(index);
+                    });
+                  },
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      child: Text(index.toString()),
+                      backgroundColor: Theme.of(context).colorScheme.secondary,
+                    ),
+                    title: Text('Serviço: ${service.nome}'),
+                    subtitle: Text(
+                      'Descrição: ${service.descricao} - '
+                      'Valor: ${service.valor} - '
+                      'Horário: ${service.horario} - '
+                      'Categoria: ${service.categoria} - '
+                      'Contato: ${service.contato}',
+                    ),
+                    onTap: () => editService(index),
+                  ),
+                )
+              : ListTile(
+                  leading: CircleAvatar(
+                    child: Text(index.toString()),
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                  ),
+                  title: Text('Serviço: ${service.nome}'),
+                  subtitle: Text(
+                    'Descrição: ${service.descricao} - '
+                    'Valor: ${service.valor} - '
+                    'Horário: ${service.horario} - '
+                    'Categoria: ${service.categoria} - '
+                    'Contato: ${service.contato}',
+                  ),
+                );
         },
       ),
       floatingActionButton: userRole == "Prestador"

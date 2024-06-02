@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:lista_tarefas/database.dart';
-import 'package:lista_tarefas/service_list.dart';
+import 'package:services/database.dart';
+import 'package:services/service_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'signup_page.dart';
 

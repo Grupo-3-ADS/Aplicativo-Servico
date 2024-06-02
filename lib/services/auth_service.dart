@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lista_tarefas/models/user.dart';
+import 'package:services/models/user.dart';
 
 class AuthService {
   User? currentUser;

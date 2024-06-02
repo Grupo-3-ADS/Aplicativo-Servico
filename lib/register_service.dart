@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lista_tarefas/models/service.dart';
-import 'package:lista_tarefas/services/database_provider.dart';
+import 'package:services/models/service.dart';
+import 'package:services/services/database_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 List<Service> listService = [];
@@ -78,7 +78,7 @@ class _RegisterServiceState extends State<RegisterService> {
               serviceCategoria(),
               sizeBox(),
               serviceContato(),
-              sizeBox()
+              sizeBox(height: 80), // Adicione um espaço extra aqui
             ],
           ),
         ),

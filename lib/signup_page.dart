@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:lista_tarefas/database.dart';
+import 'package:services/database.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
