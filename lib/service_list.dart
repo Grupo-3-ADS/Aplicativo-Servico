@@ -19,12 +19,8 @@ class _ServiceListState extends State<ServiceList> {
   @override
   void initState() {
     super.initState();
-    _initializeDatabase();
-  }
-
-  Future<void> _initializeDatabase() async {
     database = DatabaseProvider();
-    await _getAllServices();
+    _getAllServices();
   }
 
   Future<void> _getAllServices() async {
@@ -47,21 +43,34 @@ class _ServiceListState extends State<ServiceList> {
     }
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _getAllServices();
+  }
+
   void editService(int index) async {
-    if (userRole == "Prestador") {
-      Service service = services[index];
-      Service? newService = await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) =>
-              RegisterService(service: service, editIndex: index),
+    Service service = services[index];
+    Service? newService = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RegisterService(
+          service: service,
+          editIndex: index,
+          updateServices: (List<Service> updatedServices) {
+            setState(() {
+              services = updatedServices;
+              _getAllServices();
+            });
+          },
         ),
-      );
-      if (newService != null) {
-        setState(() {
-          services[index] = newService;
-        });
-      }
+      ),
+    );
+    if (newService != null) {
+      setState(() {
+        services[index] = newService;
+        _getAllServices();
+      });
     }
   }
 
@@ -78,17 +87,19 @@ class _ServiceListState extends State<ServiceList> {
           Service service = services[index];
           return Dismissible(
             key: UniqueKey(),
-            background: Container(color: Colors.purple),
+            background:
+                Container(color: Theme.of(context).colorScheme.secondary),
             onDismissed: (direction) {
-              if (userRole == "Prestador") {
-                database.deleteService(service.id!);
-                setState(() {
-                  services.removeAt(index);
-                });
-              }
+              database.deleteService(service.id!);
+              setState(() {
+                services.removeAt(index);
+              });
             },
             child: ListTile(
-              leading: CircleAvatar(child: Text(index.toString())),
+              leading: CircleAvatar(
+                child: Text(index.toString()),
+                backgroundColor: Theme.of(context).colorScheme.secondary,
+              ),
               title: Text('Serviço: ${service.nome}'),
               subtitle: Text(
                 'Descrição: ${service.descricao} - '
@@ -97,7 +108,7 @@ class _ServiceListState extends State<ServiceList> {
                 'Categoria: ${service.categoria} - '
                 'Contato: ${service.contato}',
               ),
-              onTap: userRole == "Prestador" ? () => editService(index) : null,
+              onTap: () => editService(index),
             ),
           );
         },
@@ -116,6 +127,7 @@ class _ServiceListState extends State<ServiceList> {
                 }
               },
               tooltip: 'Adicionar novo',
+              backgroundColor: Theme.of(context).colorScheme.secondary,
               child: const Icon(Icons.add),
             )
           : null,

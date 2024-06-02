@@ -8,8 +8,10 @@ List<Service> listService = [];
 class RegisterService extends StatefulWidget {
   final Service? service;
   final int? editIndex;
+  final Function(List<Service>)? updateServices;
 
-  const RegisterService({Key? key, this.service, this.editIndex})
+  const RegisterService(
+      {Key? key, this.service, this.editIndex, this.updateServices})
       : super(key: key);
 
   @override
@@ -32,15 +34,23 @@ class _RegisterServiceState extends State<RegisterService> {
   @override
   void initState() {
     super.initState();
+    _initializeServiceData();
+  }
+
+  Future<void> _initializeServiceData() async {
     if (widget.service != null) {
-      _nomeController.text = widget.service!.nome ?? '';
-      _descricaoController.text = widget.service!.descricao ?? '';
-      _valorController.text = widget.service!.valor.toString();
-      _horarioController.text = widget.service!.horario ?? '';
-      _contatoController.text = widget.service!.contato ?? '';
-      _categoriaSelecionada = widget.service!.categoria ?? _categorias.first;
+      setState(() {
+        _nomeController.text = widget.service!.nome ?? '';
+        _descricaoController.text = widget.service!.descricao ?? '';
+        _valorController.text = widget.service!.valor.toString();
+        _horarioController.text = widget.service!.horario ?? '';
+        _contatoController.text = widget.service!.contato ?? '';
+        _categoriaSelecionada = widget.service!.categoria ?? _categorias.first;
+      });
     } else {
-      _categoriaSelecionada = _categorias.first;
+      setState(() {
+        _categoriaSelecionada = _categorias.first;
+      });
     }
   }
 
@@ -68,7 +78,7 @@ class _RegisterServiceState extends State<RegisterService> {
               serviceCategoria(),
               sizeBox(),
               serviceContato(),
-              sizeBox(height: 60), // Espaço extra para evitar sobreposição
+              sizeBox()
             ],
           ),
         ),
@@ -99,32 +109,36 @@ class _RegisterServiceState extends State<RegisterService> {
                 var userId = prefs.getInt('userId');
                 if (userId == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Erro ao obter ID do usuário')),
-                  );
-                  return;
+                      SnackBar(content: Text('Erro ao obter ID do usuário')));
+                  return; // Adicionado para evitar continuação do código
                 }
 
-                Service newService = Service(
-                  widget.service?.id,
-                  _nomeController.text,
-                  _descricaoController.text,
-                  double.tryParse(_valorController.text) ?? 0.0,
-                  _horarioController.text,
-                  _categoriaSelecionada!,
-                  _contatoController.text,
-                  userId,
-                );
-
                 if (widget.editIndex != null) {
-                  if (widget.editIndex! < listService.length) {
-                    await dbProvider.updateService(newService);
-                    listService[widget.editIndex!] = newService;
-                  } else {
-                    print('Índice de edição inválido: ${widget.editIndex}');
-                  }
+                  Service newService = Service(
+                      widget.service?.id,
+                      _nomeController.text,
+                      _descricaoController.text,
+                      double.tryParse(_valorController.text) ?? 0.0,
+                      _horarioController.text,
+                      _categoriaSelecionada!,
+                      _contatoController.text,
+                      userId);
+                  await dbProvider.updateService(newService);
                 } else {
+                  Service newService = Service(
+                      widget.service?.id,
+                      _nomeController.text,
+                      _descricaoController.text,
+                      double.tryParse(_valorController.text) ?? 0.0,
+                      _horarioController.text,
+                      _categoriaSelecionada!,
+                      _contatoController.text,
+                      userId);
                   await dbProvider.saveService(newService);
                   listService.add(newService);
+                }
+                if (widget.updateServices != null) {
+                  widget.updateServices!(listService);
                 }
                 Navigator.pop(context);
               } catch (e) {
@@ -136,8 +150,10 @@ class _RegisterServiceState extends State<RegisterService> {
             },
             style: ElevatedButton.styleFrom(
               padding: EdgeInsets.symmetric(vertical: 20),
+              backgroundColor: Theme.of(context).colorScheme.secondary,
             ),
-            child: Text(widget.editIndex != null ? 'Salvar' : 'Adicionar'),
+            child: Text(widget.editIndex != null ? 'Salvar' : 'Adicionar',
+                style: TextStyle(color: Colors.black)),
           ),
         ),
       ),
