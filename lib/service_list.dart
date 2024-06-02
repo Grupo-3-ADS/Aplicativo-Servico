@@ -143,6 +143,7 @@ class _ServiceListState extends State<ServiceList> {
                     services.add(newService);
                   });
                 }
+                _getAllServices();
               },
               tooltip: 'Adicionar novo',
               backgroundColor: Theme.of(context).colorScheme.secondary,
