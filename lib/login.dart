@@ -30,8 +30,8 @@ class _LoginPageState extends State<LoginPage> {
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Colors.yellow,
-              Colors.green,
+              Color.fromARGB(255, 255, 0, 0),
+              Color.fromARGB(255, 0, 17, 255)
             ],
           ),
         ),
@@ -48,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(height: 30),
             CupertinoTextField(
               controller: emailController,
-              cursorColor: Colors.green,
+              cursorColor: Color.fromARGB(255, 0, 17, 255),
               padding: const EdgeInsets.all(15),
               placeholder: "Digite o seu e-mail",
               placeholderStyle:
@@ -64,7 +64,7 @@ class _LoginPageState extends State<LoginPage> {
             CupertinoTextField(
               controller: passwordController,
               padding: const EdgeInsets.all(15),
-              cursorColor: Colors.green,
+              cursorColor: Color.fromARGB(255, 0, 17, 255),
               placeholder: "Digite sua senha",
               obscureText: true,
               placeholderStyle:
@@ -81,11 +81,11 @@ class _LoginPageState extends State<LoginPage> {
               width: double.infinity,
               child: CupertinoButton(
                 padding: const EdgeInsets.all(17),
-                color: Colors.greenAccent,
+                color: Color.fromARGB(255, 0, 17, 255),
                 child: const Text(
                   "Acessar",
                   style: TextStyle(
-                      color: Colors.black45,
+                      color: Colors.white,
                       fontSize: 14,
                       fontWeight: FontWeight.w600),
                 ),
@@ -143,7 +143,7 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
             builder: (context) =>
-                ServiceList()), // Ajuste para a sua tela principal
+                ServiceList()), 
       );
     } else {
       showDialog(

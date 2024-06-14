@@ -16,14 +16,14 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Serviços',
       theme: ThemeData(
-          primaryColor: Colors.green[600], // Cor base personalizada
+          primaryColor: Color.fromARGB(255, 0, 17, 255),
           colorScheme: ThemeData().colorScheme.copyWith(
-                primary: Colors.green[400], // Personalizando a cor terciária
-                secondary: Colors.green[200], // Personalizando a cor secundária
-                tertiary: Colors.green[50],
+                primary: Color.fromARGB(255, 0, 17, 255),
+                secondary: Color.fromARGB(255, 255, 0, 0),
+                tertiary: Color.fromARGB(255, 204, 204, 204),
               ),
           appBarTheme: AppBarTheme(
-            backgroundColor: Colors.green[400],
+            backgroundColor: Color.fromARGB(255, 0, 17, 255),
           )),
       home: const LoginPage(),
       routes: {

@@ -132,9 +132,9 @@ class _SignupPageState extends State<SignupPage> {
               CupertinoButton(
                 child: Text(
                   'Registrar',
-                  style: TextStyle(color: Colors.black),
+                  style: TextStyle(color: Colors.white),
                 ),
-                color: Theme.of(context).colorScheme.secondary,
+                color: Theme.of(context).colorScheme.primary,
                 onPressed: () {
                   if (senhaController.text != senhaConfirmacaoController.text) {
                     showDialog(

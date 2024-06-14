@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:services/login.dart';
+import 'package:services/main.dart';
 import 'package:services/models/service.dart';
 import 'package:services/services/database_provider.dart';
 import 'package:services/register_service.dart';
@@ -81,8 +83,8 @@ class _ServiceListState extends State<ServiceList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-            userRole == "Prestador" ? 'Meus Serviços' : 'Serviços Disponíveis'),
+        title: Text(userRole == "Prestador" ? 'Meus Serviços' : 'Serviços Disponíveis'),
+        foregroundColor: Colors.white,
       ),
       body: ListView.builder(
         itemCount: services.length,
@@ -91,8 +93,7 @@ class _ServiceListState extends State<ServiceList> {
           return userRole == "Prestador"
               ? Dismissible(
                   key: UniqueKey(),
-                  background:
-                      Container(color: Theme.of(context).colorScheme.secondary),
+                  background: Container(color: Theme.of(context).colorScheme.secondary),
                   onDismissed: (direction) {
                     database.deleteService(service.id!);
                     setState(() {
@@ -131,25 +132,57 @@ class _ServiceListState extends State<ServiceList> {
                 );
         },
       ),
-      floatingActionButton: userRole == "Prestador"
-          ? FloatingActionButton(
-              onPressed: () async {
-                Service? newService = await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => RegisterService()),
-                );
-                if (newService != null) {
-                  setState(() {
-                    services.add(newService);
-                  });
-                }
-                _getAllServices();
+      floatingActionButton: Stack(
+        children: [
+          if (userRole == "Prestador")
+            Positioned(
+              bottom: 16,
+              right: 15,
+              child: FloatingActionButton(
+                heroTag: 'add_service',  // Define um tag único
+                onPressed: () async {
+                  Service? newService = await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => RegisterService()),
+                  );
+                  if (newService != null) {
+                    setState(() {
+                      services.add(newService);
+                    });
+                  }
+                  _getAllServices();
+                },
+                tooltip: 'Adicionar novo',
+                backgroundColor: Theme.of(context).colorScheme.secondary,
+                foregroundColor: Colors.white,
+                child: const Icon(Icons.add),
+              ),
+            ),
+          Positioned(
+            bottom: 16,
+            left: 50,
+            child: FloatingActionButton(
+              heroTag: 'logout',  // Define um tag único
+              onPressed: () {
+                _logout();
               },
-              tooltip: 'Adicionar novo',
+              tooltip: 'Logout',
               backgroundColor: Theme.of(context).colorScheme.secondary,
-              child: const Icon(Icons.add),
-            )
-          : null,
+              foregroundColor: Colors.white,
+              child: const Icon(Icons.logout),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
     );
   }
 }
