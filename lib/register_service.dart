@@ -150,10 +150,10 @@ class _RegisterServiceState extends State<RegisterService> {
             },
             style: ElevatedButton.styleFrom(
               padding: EdgeInsets.symmetric(vertical: 20),
-              backgroundColor: Theme.of(context).colorScheme.secondary,
+              backgroundColor: Theme.of(context).colorScheme.primary,
             ),
             child: Text(widget.editIndex != null ? 'Salvar' : 'Adicionar',
-                style: TextStyle(color: Colors.black)),
+                style: TextStyle(color: Colors.white)),
           ),
         ),
       ),
